@@ -4,7 +4,7 @@ import com.sekai.potionmixer.Main;
 import com.sekai.potionmixer.blocks.MixingStandBlock;
 import com.sekai.potionmixer.items.BlockItemBase;
 import com.sekai.potionmixer.menu.MixingStandMenu;
-import com.sekai.potionmixer.tileentity.MixingStandBlockEntity;
+import com.sekai.potionmixer.tileentities.MixingStandBlockEntity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -14,8 +14,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.function.Supplier;
 
 public class RegistryHandler {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Main.MODID);
@@ -43,5 +41,5 @@ public class RegistryHandler {
 
     //Menu Type
     public static final RegistryObject<MenuType<MixingStandMenu>> MIXING_STAND_MENU =
-            MENU_TYPE.register("mixing_stand", IForgeContainerType.create(MixingStandMenu::createContainerClientSide));
+            MENU_TYPE.register("mixing_stand", () -> IForgeContainerType.create(MixingStandMenu::new));
 }

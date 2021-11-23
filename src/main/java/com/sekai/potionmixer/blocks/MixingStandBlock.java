@@ -1,26 +1,18 @@
 package com.sekai.potionmixer.blocks;
 
-import com.sekai.potionmixer.tileentity.MixingStandBlockEntity;
+import com.sekai.potionmixer.tileentities.MixingStandBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -78,8 +70,7 @@ public class MixingStandBlock extends BaseEntityBlock {
         } else {
             BlockEntity blockentity = level.getBlockEntity(blockPos);
             if (blockentity instanceof MixingStandBlockEntity) {
-                player.openMenu((MixingStandBlockEntity)blockentity);
-                player.awardStat(Stats.INTERACT_WITH_BREWINGSTAND);
+                player.openMenu((MenuProvider) blockentity);
             }
 
             return InteractionResult.CONSUME;
