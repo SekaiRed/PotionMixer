@@ -44,8 +44,10 @@ public class MixingStandMenu extends AbstractContainerMenu {
         this.addSlot(new MixingStandMenu.PotionSlot(p_39095_, 0, 56, 24));
         this.addSlot(new MixingStandMenu.PotionSlot(p_39095_, 1, 79, 17));
         this.addSlot(new MixingStandMenu.PotionSlot(p_39095_, 2, 102, 24));
-        this.ingredientSlot = this.addSlot(new MixingStandMenu.IngredientsSlot(p_39095_, 3, 19, 40));
-        this.addSlot(new MixingStandMenu.FuelSlot(p_39095_, 4, 17, 17));
+        //this.ingredientSlot = this.addSlot(new MixingStandMenu.IngredientsSlot(p_39095_, 3, 19, 40));
+        //this.addSlot(new MixingStandMenu.FuelSlot(p_39095_, 4, 17, 17));
+        this.ingredientSlot = this.addSlot(new MixingStandMenu.IngredientsSlot(p_39095_, 3, 79, 58));
+        this.addSlot(new MixingStandMenu.FuelSlot(p_39095_, 4, 19, 40));
         this.addDataSlots(p_39096_);
 
         for(int i = 0; i < 3; ++i) {
@@ -63,6 +65,10 @@ public class MixingStandMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.mixingStand.stillValid(player);
+    }
+
+    public int getBrewingTicks() {
+        return this.mixingStandData.get(0);
     }
 
     //todo uh phantom membrane?

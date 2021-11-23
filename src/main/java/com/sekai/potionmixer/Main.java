@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(Main.MODID)
 public class Main
 {
-    // Directly reference a log4j logger.
+    //TODO Add support for splash potions and tipped arrows, it might be tough but it's worth it
     private static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "potionmixer";
 

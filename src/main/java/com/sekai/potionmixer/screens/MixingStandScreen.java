@@ -46,21 +46,15 @@ public class MixingStandScreen extends AbstractContainerScreen<MixingStandMenu> 
         int l = Mth.clamp((18 * k + 20 - 1) / 20, 0, 18);
         if (l > 0) {
             this.blit(p_98336_, i + 60, j + 44, 176, 29, l, 4);
-        }
+        }*/
 
-        //int i1 = this.menu.getBrewingTicks();
-        int i1 = 200;
+        int i1 = this.menu.getBrewingTicks();
         if (i1 > 0) {
             int j1 = (int)(28.0F * (1.0F - (float)i1 / 400.0F));
             if (j1 > 0) {
-                this.blit(p_98336_, i + 97, j + 16, 176, 0, 9, j1);
+                this.blit(p_98336_, i + 97, j + 44, 176, 0, 9, j1);
             }
-
-            j1 = BUBBLELENGTHS[i1 / 2 % 7];
-            if (j1 > 0) {
-                this.blit(p_98336_, i + 63, j + 14 + 29 - j1, 185, 29 - j1, 12, j1);
-            }
-        }*/
+        }
 
     }
 }

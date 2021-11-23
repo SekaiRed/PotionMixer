@@ -1,25 +1,34 @@
 package com.sekai.potionmixer.tileentities;
 
+import com.sekai.potionmixer.blocks.MixingStandBlock;
 import com.sekai.potionmixer.menu.MixingStandMenu;
 import com.sekai.potionmixer.util.RegistryHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MixingStandBlockEntity extends BaseContainerBlockEntity {
     private static final int INGREDIENT_SLOT = 3;
@@ -98,6 +107,146 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
         super(RegistryHandler.MIXING_STAND_ENTITY.get(), blockPos, blockState);
     }
 
+    public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, MixingStandBlockEntity blockEntity) {
+        /*ItemStack itemstack = blockEntity.items.get(4);
+        if (blockEntity.fuel <= 0 && itemstack.is(Items.BLAZE_POWDER)) {
+            blockEntity.fuel = 20;
+            itemstack.shrink(1);
+            setChanged(level, blockPos, blockState);
+        }*/
+
+        //blockEntity.brewTime--;
+        if(isMixable(blockEntity.items)) {
+            blockEntity.brewTime -= 1;
+            if(blockEntity.brewTime == 0) {
+                blockEntity.brewTime = 400;
+                doMix(level, blockPos, blockEntity.items);
+                setChanged(level, blockPos, blockState);
+            }
+        } else {
+            blockEntity.brewTime = 400;
+        }
+
+        //blockEntity.brewTime = blockEntity.brewTime < 0 ? 400 : blockEntity.brewTime - 1;
+
+        /*boolean flag = isBrewable(blockEntity.items);
+        boolean flag1 = blockEntity.brewTime > 0;
+        ItemStack itemstack1 = blockEntity.items.get(3);
+        if (flag1) {
+            --blockEntity.brewTime;
+            boolean flag2 = blockEntity.brewTime == 0;
+            if (flag2 && flag) {
+                doMix(level, blockPos, blockEntity.items);
+                setChanged(level, blockPos, blockState);
+            } else if (!flag || !itemstack1.is(blockEntity.ingredient)) {
+                blockEntity.brewTime = 0;
+                setChanged(level, blockPos, blockState);
+            }
+        } else if (flag && blockEntity.fuel > 0) {
+            --blockEntity.fuel;
+            blockEntity.brewTime = 400;
+            blockEntity.ingredient = itemstack1.getItem();
+            setChanged(level, blockPos, blockState);
+        }*/
+
+        boolean[] aboolean = blockEntity.getPotionBits();
+        if (!Arrays.equals(aboolean, blockEntity.lastPotionCount)) {
+            blockEntity.lastPotionCount = aboolean;
+            BlockState blockstate = blockState;
+            if (!(blockState.getBlock() instanceof MixingStandBlock)) {
+                return;
+            }
+
+            for(int i = 0; i < MixingStandBlock.HAS_BOTTLE.length; ++i) {
+                blockstate = blockstate.setValue(MixingStandBlock.HAS_BOTTLE[i], Boolean.valueOf(aboolean[i]));
+            }
+
+            level.setBlock(blockPos, blockstate, 2);
+        }
+
+    }
+
+    private boolean[] getPotionBits() {
+        boolean[] aboolean = new boolean[3];
+
+        for(int i = 0; i < 3; ++i) {
+            if (!this.items.get(i).isEmpty()) {
+                aboolean[i] = true;
+            }
+        }
+
+        return aboolean;
+    }
+
+    private static boolean isMixable(NonNullList<ItemStack> items) {
+        int potionCount = 0;
+        for(int i = 0; i<3; i++) {
+            if(items.get(i).getItem().equals(Items.POTION))
+                potionCount++;
+        }
+        return potionCount>1;
+    }
+
+    private static void doMix(Level level, BlockPos pos, NonNullList<ItemStack> items) {
+        List<MobEffectInstance> finalEffects = new ArrayList<>();
+        List<KnownMobEffect> effects = new ArrayList<>();
+        int duplicate = 0;
+        for(int i = 0; i < 3; i++) {
+            for(MobEffectInstance effectInstance : PotionUtils.getMobEffects(items.get(i))) {
+                boolean replaced = false;
+                for(KnownMobEffect effect : effects) {
+                    if(effectInstance.getEffect().equals(effect.effect)) {
+                        effect.count++;
+                        effect.duration += effectInstance.getDuration();
+                        effect.lowest_level = Math.min(effectInstance.getAmplifier(), effect.lowest_level);
+                        replaced = true;
+                    }
+                }
+                if(!replaced) {
+                    effects.add(new KnownMobEffect(effectInstance.getEffect(), effectInstance.getDuration(), 1, effectInstance.getAmplifier()));
+                }
+            }
+            //effects.addAll(PotionUtils.getMobEffects(items.get(i)));
+        }
+
+        for(KnownMobEffect effect : effects) {
+            if(effect.count == 2)
+                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration/4, effect.lowest_level+1));
+            else if(effect.count == 3)
+                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration/3, effect.lowest_level+1));
+            else
+                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration, effect.lowest_level));
+        }
+
+        ItemStack result = new ItemStack(Items.POTION);
+        PotionUtils.setCustomEffects(result, finalEffects);
+        CompoundTag nameNBT = new CompoundTag();
+        //TODO Change to a translation thingy
+        nameNBT.putString("Name", "{\"text\":\"Mixed Potion\",\"italic\":\"false\"}");
+        result.addTagElement("display", nameNBT);
+        //result.tag();
+        items.set(3, result);
+
+        /*//if (net.minecraftforge.event.ForgeEventFactory.onPotionAttemptBrew(items)) return;
+        ItemStack itemstack = items.get(3);
+
+        //net.minecraftforge.common.brewing.BrewingRecipeRegistry.brewPotions(items, itemstack, SLOTS_FOR_SIDES);
+        //net.minecraftforge.event.ForgeEventFactory.onPotionBrewed(items);
+        if (itemstack.hasContainerItem()) {
+            ItemStack itemstack1 = itemstack.getContainerItem();
+            itemstack.shrink(1);
+            if (itemstack.isEmpty()) {
+                itemstack = itemstack1;
+            } else {
+                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), itemstack1);
+            }
+        }
+        else itemstack.shrink(1);
+
+        items.set(3, itemstack);
+        //level.levelEvent(1035, pos, 0);*/
+    }
+
     @Override
     public int getContainerSize() {
         return this.items.size();
@@ -148,5 +297,19 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
     @Override
     public void clearContent() {
         this.items.clear();
+    }
+
+    private static class KnownMobEffect {
+        public MobEffect effect;
+        public int duration;
+        public int count;
+        public int lowest_level;
+
+        public KnownMobEffect(MobEffect effect, int duration, int count, int lowest_level) {
+            this.effect = effect;
+            this.duration = duration;
+            this.count = count;
+            this.lowest_level = lowest_level;
+        }
     }
 }

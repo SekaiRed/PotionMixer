@@ -1,6 +1,7 @@
 package com.sekai.potionmixer.blocks;
 
 import com.sekai.potionmixer.tileentities.MixingStandBlockEntity;
+import com.sekai.potionmixer.util.RegistryHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.InteractionHand;
@@ -13,6 +14,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -37,10 +40,10 @@ public class MixingStandBlock extends BaseEntityBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(HAS_BOTTLE[0], Boolean.valueOf(true)).setValue(HAS_BOTTLE[1], Boolean.valueOf(false)).setValue(HAS_BOTTLE[2], Boolean.valueOf(false)));
     }
 
-    /*@Nullable
+    @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level p_152694_, BlockState p_152695_, BlockEntityType<T> p_152696_) {
-        return p_152694_.isClientSide ? null : createTickerHelper(p_152696_, BlockEntityType.BREWING_STAND, BrewingStandBlockEntity::serverTick);
-    }*/
+        return p_152694_.isClientSide ? null : createTickerHelper(p_152696_, RegistryHandler.MIXING_STAND_ENTITY.get(), MixingStandBlockEntity::serverTick);
+    }
 
     public RenderShape getRenderShape(BlockState p_50950_) {
         return RenderShape.MODEL;
