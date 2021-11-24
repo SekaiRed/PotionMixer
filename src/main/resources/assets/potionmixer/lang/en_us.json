@@ -1,4 +1,10 @@
 {
   "block.potionmixer.mixing_stand": "Mixing Stand",
-  "container.mixing": "Mixing Stand"
+
+  "container.mixing": "Mixing Stand",
+
+  "item.mixed_potion": "Mixed Potion",
+  "item.splash_mixed_potion": "Splash Mixed Potion",
+  "item.lingering_mixed_potion": "Lingering Mixed Potion",
+  "item.mixed_tipped_arrow": "Mixed Tipped Arrow"
 }

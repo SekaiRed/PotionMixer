@@ -61,9 +61,9 @@ public class MixingStandBlock extends BaseEntityBlock {
 
     public void animateTick(BlockState p_50943_, Level p_50944_, BlockPos p_50945_, Random p_50946_) {
         double d0 = (double)p_50945_.getX() + 0.4D + (double)p_50946_.nextFloat() * 0.2D;
-        double d1 = (double)p_50945_.getY() + 0.3D + (double)p_50946_.nextFloat() * 0.6D;
+        double d1 = (double)p_50945_.getY() + 0.3D + (double)p_50946_.nextFloat() * 0.7D;
         double d2 = (double)p_50945_.getZ() + 0.4D + (double)p_50946_.nextFloat() * 0.2D;
-        if (p_50946_.nextInt(5) == 0)
+        if (p_50946_.nextInt(4) == 0)
             p_50944_.addParticle(ParticleTypes.END_ROD, d0, d1, d2, p_50946_.nextGaussian() * 0.005D, p_50946_.nextGaussian() * 0.005D, p_50946_.nextGaussian() * 0.005D);
     }
 

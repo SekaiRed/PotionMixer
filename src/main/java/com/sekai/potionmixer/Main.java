@@ -1,5 +1,6 @@
 package com.sekai.potionmixer;
 
+import com.sekai.potionmixer.events.EventHandler;
 import com.sekai.potionmixer.screens.MixingStandScreen;
 import com.sekai.potionmixer.util.RegistryHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -16,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 @Mod(Main.MODID)
 public class Main
 {
-    //TODO Add support for splash potions and tipped arrows, it might be tough but it's worth it
     private static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "potionmixer";
 
@@ -25,6 +25,8 @@ public class Main
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
         RegistryHandler.init();
+
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
 
         // Register ourselves for server and other game events we are interested in
         //MinecraftForge.EVENT_BUS.register(this);

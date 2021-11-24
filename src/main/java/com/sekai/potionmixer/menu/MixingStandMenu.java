@@ -1,9 +1,7 @@
 package com.sekai.potionmixer.menu;
 
 import com.sekai.potionmixer.util.RegistryHandler;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -11,22 +9,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
-
-import javax.annotation.Nullable;
+import net.minecraft.world.item.alchemy.Potions;
 
 public class MixingStandMenu extends AbstractContainerMenu {
-    private static final int BOTTLE_SLOT_START = 0;
-    private static final int BOTTLE_SLOT_END = 2;
-    private static final int INGREDIENT_SLOT = 3;
-    private static final int FUEL_SLOT = 4;
-    private static final int SLOT_COUNT = 5;
-    private static final int DATA_COUNT = 2;
-    private static final int INV_SLOT_START = 5;
-    private static final int INV_SLOT_END = 32;
-    private static final int USE_ROW_SLOT_START = 32;
-    private static final int USE_ROW_SLOT_END = 41;
     private final Container mixingStand;
     private final ContainerData mixingStandData;
     private final Slot ingredientSlot;
@@ -46,8 +32,8 @@ public class MixingStandMenu extends AbstractContainerMenu {
         this.addSlot(new MixingStandMenu.PotionSlot(p_39095_, 2, 102, 24));
         //this.ingredientSlot = this.addSlot(new MixingStandMenu.IngredientsSlot(p_39095_, 3, 19, 40));
         //this.addSlot(new MixingStandMenu.FuelSlot(p_39095_, 4, 17, 17));
-        this.ingredientSlot = this.addSlot(new MixingStandMenu.IngredientsSlot(p_39095_, 3, 79, 58));
-        this.addSlot(new MixingStandMenu.FuelSlot(p_39095_, 4, 19, 40));
+        this.addSlot(new OutputSlot(p_39095_, 3, 79, 58)); //result
+        this.ingredientSlot = this.addSlot(new IngredientSlot(p_39095_, 4, 19, 40));
         this.addDataSlots(p_39096_);
 
         for(int i = 0; i < 3; ++i) {
@@ -72,17 +58,17 @@ public class MixingStandMenu extends AbstractContainerMenu {
     }
 
     //todo uh phantom membrane?
-    static class FuelSlot extends Slot {
-        public FuelSlot(Container p_39105_, int p_39106_, int p_39107_, int p_39108_) {
+    static class IngredientSlot extends Slot {
+        public IngredientSlot(Container p_39105_, int p_39106_, int p_39107_, int p_39108_) {
             super(p_39105_, p_39106_, p_39107_, p_39108_);
         }
 
-        public boolean mayPlace(ItemStack p_39111_) {
-            return mayPlaceItem(p_39111_);
+        public boolean mayPlace(ItemStack itemStack) {
+            return mayPlaceItem(itemStack);
         }
 
-        public static boolean mayPlaceItem(ItemStack p_39113_) {
-            return p_39113_.is(Items.BLAZE_POWDER);
+        public static boolean mayPlaceItem(ItemStack itemStack) {
+            return itemStack.is(Items.REDSTONE) || itemStack.is(Items.GLOWSTONE_DUST);
         }
 
         public int getMaxStackSize() {
@@ -90,18 +76,21 @@ public class MixingStandMenu extends AbstractContainerMenu {
         }
     }
 
-    static class IngredientsSlot extends Slot {
-        public IngredientsSlot(Container p_39115_, int p_39116_, int p_39117_, int p_39118_) {
+    static class OutputSlot extends Slot {
+        public OutputSlot(Container p_39115_, int p_39116_, int p_39117_, int p_39118_) {
             super(p_39115_, p_39116_, p_39117_, p_39118_);
         }
 
-        public boolean mayPlace(ItemStack p_39121_) {
-            //todo replace with my own function to check if it's one of the ingredients
-            return net.minecraftforge.common.brewing.BrewingRecipeRegistry.isValidIngredient(p_39121_);
+        public boolean mayPlace(ItemStack itemStack) {
+            return mayPlaceItem(itemStack);
+        }
+
+        public static boolean mayPlaceItem(ItemStack itemStack) {
+            return itemStack.is(Items.GLASS_BOTTLE) || PotionUtils.getPotion(itemStack).equals(Potions.WATER);
         }
 
         public int getMaxStackSize() {
-            return 64;
+            return 1;
         }
     }
 
@@ -110,26 +99,12 @@ public class MixingStandMenu extends AbstractContainerMenu {
             super(p_39123_, p_39124_, p_39125_, p_39126_);
         }
 
-        public boolean mayPlace(ItemStack p_39132_) {
-            return mayPlaceItem(p_39132_);
+        public boolean mayPlace(ItemStack itemStack) {
+            return itemStack.is(Items.POTION);
         }
 
         public int getMaxStackSize() {
             return 1;
-        }
-
-        public void onTake(Player p_150499_, ItemStack p_150500_) {
-            Potion potion = PotionUtils.getPotion(p_150500_);
-            if (p_150499_ instanceof ServerPlayer) {
-                net.minecraftforge.event.ForgeEventFactory.onPlayerBrewedPotion(p_150499_, p_150500_);
-                CriteriaTriggers.BREWED_POTION.trigger((ServerPlayer)p_150499_, potion);
-            }
-
-            super.onTake(p_150499_, p_150500_);
-        }
-
-        public static boolean mayPlaceItem(ItemStack p_39134_) {
-            return net.minecraftforge.common.brewing.BrewingRecipeRegistry.isValidInput(p_39134_);
         }
     }
 }

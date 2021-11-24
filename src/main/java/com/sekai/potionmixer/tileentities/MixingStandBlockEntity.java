@@ -2,15 +2,14 @@ package com.sekai.potionmixer.tileentities;
 
 import com.sekai.potionmixer.blocks.MixingStandBlock;
 import com.sekai.potionmixer.menu.MixingStandMenu;
+import com.sekai.potionmixer.util.MixingUtil;
 import com.sekai.potionmixer.util.RegistryHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.Containers;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,6 +20,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -117,8 +117,8 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
 
         //blockEntity.brewTime--;
         if(isMixable(blockEntity.items)) {
-            blockEntity.brewTime -= 1;
-            if(blockEntity.brewTime == 0) {
+            blockEntity.brewTime -= 2;
+            if(blockEntity.brewTime <= 0) {
                 blockEntity.brewTime = 400;
                 doMix(level, blockPos, blockEntity.items);
                 setChanged(level, blockPos, blockState);
@@ -126,28 +126,6 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
         } else {
             blockEntity.brewTime = 400;
         }
-
-        //blockEntity.brewTime = blockEntity.brewTime < 0 ? 400 : blockEntity.brewTime - 1;
-
-        /*boolean flag = isBrewable(blockEntity.items);
-        boolean flag1 = blockEntity.brewTime > 0;
-        ItemStack itemstack1 = blockEntity.items.get(3);
-        if (flag1) {
-            --blockEntity.brewTime;
-            boolean flag2 = blockEntity.brewTime == 0;
-            if (flag2 && flag) {
-                doMix(level, blockPos, blockEntity.items);
-                setChanged(level, blockPos, blockState);
-            } else if (!flag || !itemstack1.is(blockEntity.ingredient)) {
-                blockEntity.brewTime = 0;
-                setChanged(level, blockPos, blockState);
-            }
-        } else if (flag && blockEntity.fuel > 0) {
-            --blockEntity.fuel;
-            blockEntity.brewTime = 400;
-            blockEntity.ingredient = itemstack1.getItem();
-            setChanged(level, blockPos, blockState);
-        }*/
 
         boolean[] aboolean = blockEntity.getPotionBits();
         if (!Arrays.equals(aboolean, blockEntity.lastPotionCount)) {
@@ -180,8 +158,16 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
 
     private static boolean isMixable(NonNullList<ItemStack> items) {
         int potionCount = 0;
+
+        //itemStack.is(Items.GLASS_BOTTLE) || PotionUtils.getPotion(itemStack).equals(Potions.WATER)
+        if(!items.get(3).is(Items.GLASS_BOTTLE) && !PotionUtils.getPotion(items.get(3)).equals(Potions.WATER))
+            return false;
+
+        if(!items.get(4).is(Items.REDSTONE))
+            return false;
+
         for(int i = 0; i<3; i++) {
-            if(items.get(i).getItem().equals(Items.POTION))
+            if(items.get(i).is(Items.POTION))
                 potionCount++;
         }
         return potionCount>1;
@@ -190,7 +176,6 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
     private static void doMix(Level level, BlockPos pos, NonNullList<ItemStack> items) {
         List<MobEffectInstance> finalEffects = new ArrayList<>();
         List<KnownMobEffect> effects = new ArrayList<>();
-        int duplicate = 0;
         for(int i = 0; i < 3; i++) {
             for(MobEffectInstance effectInstance : PotionUtils.getMobEffects(items.get(i))) {
                 boolean replaced = false;
@@ -206,7 +191,6 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
                     effects.add(new KnownMobEffect(effectInstance.getEffect(), effectInstance.getDuration(), 1, effectInstance.getAmplifier()));
                 }
             }
-            //effects.addAll(PotionUtils.getMobEffects(items.get(i)));
         }
 
         for(KnownMobEffect effect : effects) {
@@ -218,34 +202,30 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
                 finalEffects.add(new MobEffectInstance(effect.effect, effect.duration, effect.lowest_level));
         }
 
+        //itemstack.shrink(1);
+
         ItemStack result = new ItemStack(Items.POTION);
         PotionUtils.setCustomEffects(result, finalEffects);
         CompoundTag nameNBT = new CompoundTag();
-        //TODO Change to a translation thingy
-        nameNBT.putString("Name", "{\"text\":\"Mixed Potion\",\"italic\":\"false\"}");
+        nameNBT.putString("Name", MixingUtil.MIXED_POTION);//"{\"text\":\"Mixed Potion\",\"italic\":\"false\"}"
         result.addTagElement("display", nameNBT);
-        //result.tag();
+        result.getOrCreateTag().putInt("CustomPotionColor", PotionUtils.getColor(finalEffects));
         items.set(3, result);
-
-        /*//if (net.minecraftforge.event.ForgeEventFactory.onPotionAttemptBrew(items)) return;
-        ItemStack itemstack = items.get(3);
-
-        //net.minecraftforge.common.brewing.BrewingRecipeRegistry.brewPotions(items, itemstack, SLOTS_FOR_SIDES);
-        //net.minecraftforge.event.ForgeEventFactory.onPotionBrewed(items);
-        if (itemstack.hasContainerItem()) {
-            ItemStack itemstack1 = itemstack.getContainerItem();
-            itemstack.shrink(1);
-            if (itemstack.isEmpty()) {
-                itemstack = itemstack1;
-            } else {
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), itemstack1);
-            }
-        }
-        else itemstack.shrink(1);
-
-        items.set(3, itemstack);
-        //level.levelEvent(1035, pos, 0);*/
+        for(int i = 0; i < 3; i++)
+            items.set(i, new ItemStack(Items.GLASS_BOTTLE));
+        if(!items.get(4).isEmpty())
+            items.get(4).shrink(1);
     }
+
+    /*private static int getPotionColor(NonNullList<ItemStack> items) {
+        byte red;
+        byte green;
+        byte blue;
+        for(int i = 0; i<3; i++) {
+            PotionUtils.getColor()
+        }
+        return 0;
+    }*/
 
     @Override
     public int getContainerSize() {
