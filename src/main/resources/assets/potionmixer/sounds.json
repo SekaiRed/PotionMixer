@@ -1,0 +1,8 @@
+{
+  "mix":
+  {
+    "category": "master",
+    "subtitle": "mix",
+    "sounds": [{"name": "potionmixer:mix"}]
+  }
+}

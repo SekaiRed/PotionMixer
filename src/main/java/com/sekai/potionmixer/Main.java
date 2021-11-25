@@ -1,5 +1,6 @@
 package com.sekai.potionmixer;
 
+import com.sekai.potionmixer.config.MixingConfig;
 import com.sekai.potionmixer.events.EventHandler;
 import com.sekai.potionmixer.screens.MixingStandScreen;
 import com.sekai.potionmixer.util.RegistryHandler;
@@ -7,7 +8,9 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -26,10 +29,9 @@ public class Main
 
         RegistryHandler.init();
 
-        MinecraftForge.EVENT_BUS.register(new EventHandler());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MixingConfig.COMMON_SPEC);
 
-        // Register ourselves for server and other game events we are interested in
-        //MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new EventHandler());
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

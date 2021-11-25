@@ -1,14 +1,15 @@
 package com.sekai.potionmixer.tileentities;
 
 import com.sekai.potionmixer.blocks.MixingStandBlock;
+import com.sekai.potionmixer.config.MixingConfig;
 import com.sekai.potionmixer.menu.MixingStandMenu;
-import com.sekai.potionmixer.util.MixingUtil;
 import com.sekai.potionmixer.util.RegistryHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -163,7 +164,7 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
         if(!items.get(3).is(Items.GLASS_BOTTLE) && !PotionUtils.getPotion(items.get(3)).equals(Potions.WATER))
             return false;
 
-        if(!items.get(4).is(Items.REDSTONE))
+        if(!items.get(4).is(Items.REDSTONE) && !items.get(4).is(Items.GLOWSTONE_DUST))
             return false;
 
         for(int i = 0; i<3; i++) {
@@ -194,27 +195,45 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
         }
 
         for(KnownMobEffect effect : effects) {
-            if(effect.count == 2)
+            int duration = effect.duration;
+            int amplifier = effect.lowest_level;
+
+            if(effect.count > 1 && items.get(4).is(Items.REDSTONE) && amplifier+1 <= MixingConfig.maxAmplifier) {
+                if(effect.count == 2)
+                    duration/=4;
+                else
+                    duration/=3;
+
+                amplifier = Math.min(amplifier + 1, MixingConfig.maxAmplifier);
+            }
+
+            finalEffects.add(new MobEffectInstance(effect.effect, duration, amplifier));
+            /*if(effect.count == 2)
                 finalEffects.add(new MobEffectInstance(effect.effect, effect.duration/4, effect.lowest_level+1));
             else if(effect.count == 3)
                 finalEffects.add(new MobEffectInstance(effect.effect, effect.duration/3, effect.lowest_level+1));
             else
-                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration, effect.lowest_level));
+                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration, effect.lowest_level));*/
         }
 
         //itemstack.shrink(1);
 
         ItemStack result = new ItemStack(Items.POTION);
+        PotionUtils.setPotion(result, RegistryHandler.MIXED_POTION.get());
         PotionUtils.setCustomEffects(result, finalEffects);
-        CompoundTag nameNBT = new CompoundTag();
-        nameNBT.putString("Name", MixingUtil.MIXED_POTION);//"{\"text\":\"Mixed Potion\",\"italic\":\"false\"}"
-        result.addTagElement("display", nameNBT);
+        //CompoundTag nameNBT = new CompoundTag();
+        //nameNBT.putString("Name", MixingUtil.MIXED_POTION);//"{\"text\":\"Mixed Potion\",\"italic\":\"false\"}"
+        //result.addTagElement("display", nameNBT);
         result.getOrCreateTag().putInt("CustomPotionColor", PotionUtils.getColor(finalEffects));
         items.set(3, result);
-        for(int i = 0; i < 3; i++)
-            items.set(i, new ItemStack(Items.GLASS_BOTTLE));
+        for(int i = 0; i < 3; i++) {
+            if(!items.get(i).isEmpty())
+                items.set(i, new ItemStack(Items.GLASS_BOTTLE));
+        }
         if(!items.get(4).isEmpty())
             items.get(4).shrink(1);
+
+        level.playSound(null, pos, RegistryHandler.MIXING_SOUND.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     /*private static int getPotionColor(NonNullList<ItemStack> items) {

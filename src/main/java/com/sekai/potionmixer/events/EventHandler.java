@@ -1,7 +1,8 @@
 package com.sekai.potionmixer.events;
 
-import com.sekai.potionmixer.util.MixingUtil;
+import com.sekai.potionmixer.util.MixingUtils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.brewing.PotionBrewEvent;
@@ -9,7 +10,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class EventHandler {
-    private static final CompoundTag[] resultOverride = {null, null, null};
+    private static final Tag[] resultOverride = {null, null, null};
     //TODO Reduce the potion times accordingly
     @SubscribeEvent
     public void potionBrewedEventPre(PotionBrewEvent.Pre e) {
@@ -17,9 +18,13 @@ public class EventHandler {
             for (int i = 0; i < 3; i++) {
                 ItemStack item = e.getItem(i);
                 CompoundTag originalTag = item.getOrCreateTag();
-                if (item.is(Items.POTION) && !item.getOrCreateTag().contains("Potion")) {
-                    resultOverride[i] = originalTag.copy();
-                    resultOverride[i].getCompound("display").putString("Name", MixingUtil.SPLASH_MIXED_POTION);
+                if (originalTag.get("CustomPotionEffects") != null) {
+                    //ListTag listtag = originalTag.getList("CustomPotionEffects", 9).copy();
+                    /*for(int j = 0; j<listtag.size(); j++)
+                        listtag.getCompound(j).getInt("Duration")*/
+                    //correctPotionDurations(listtag, 1/2D);
+                    resultOverride[i] = originalTag.get("CustomPotionEffects").copy();
+                    //resultOverride[i].getCompound("display").putString("Name", MixingUtil.SPLASH_MIXED_POTION);
                 }
             }
         }
@@ -27,22 +32,25 @@ public class EventHandler {
             for (int i = 0; i < 3; i++) {
                 ItemStack item = e.getItem(i);
                 CompoundTag originalTag = item.getOrCreateTag();
-                if (item.is(Items.SPLASH_POTION) && !item.getOrCreateTag().contains("Potion")) {
-                    resultOverride[i] = originalTag.copy();
-                    resultOverride[i].getCompound("display").putString("Name", MixingUtil.LINGERING_MIXED_POTION);
+
+                if (originalTag.get("CustomPotionEffects") != null) {
+                    MixingUtils.correctPotionDurations(item, 1/4D);
+                    resultOverride[i] = originalTag.get("CustomPotionEffects").copy();
                 }
             }
         }
     }
+
     @SubscribeEvent
     public void potionBrewedEventPost(PotionBrewEvent.Post e) {
         for (int i = 0; i < 3; i++) {
             if(resultOverride[i] != null) {
-                e.getItem(i).setTag(resultOverride[i]);
+                e.getItem(i).getOrCreateTag().put("CustomPotionEffects", resultOverride[i]);
                 resultOverride[i] = null;
             }
         }
     }
+    //PotionUtils.getPotion(item).equals(RegistryHandler.MIXED_POTION.get())
 
     @SubscribeEvent
     public void itemCraftedEvent(PlayerEvent.ItemCraftedEvent e) {
