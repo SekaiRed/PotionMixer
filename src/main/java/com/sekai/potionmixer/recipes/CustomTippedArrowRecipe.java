@@ -48,10 +48,6 @@ public class CustomTippedArrowRecipe extends CustomRecipe {
             ItemStack itemstack1 = new ItemStack(Items.TIPPED_ARROW, 8);
             PotionUtils.setPotion(itemstack1, PotionUtils.getPotion(itemstack));
             if(MixingUtils.isMixedPotion(itemstack)) {
-                //CompoundTag nameNBT = new CompoundTag();
-                //nameNBT.putString("Name", MixingUtil.MIXED_TIPPED_ARROW);//"{\"text\":\"Mixed Potion\",\"italic\":\"false\"}"
-                //itemstack1.addTagElement("display", nameNBT);
-                //itemstack1 = MixingUtils.correctPotionDurations(itemstack, 1/4D);
                 itemstack1.getOrCreateTag().putInt("CustomPotionColor", PotionUtils.getColor(PotionUtils.getCustomEffects(itemstack)));
             }
             PotionUtils.setCustomEffects(itemstack1, PotionUtils.getCustomEffects(itemstack));

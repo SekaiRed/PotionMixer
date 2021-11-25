@@ -40,13 +40,6 @@ public class MixingStandScreen extends AbstractContainerScreen<MixingStandMenu> 
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         this.blit(p_98336_, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        //this.blit(p_98336_, i, j + this.imageHeight, 0, 0, this.imageWidth, -this.imageHeight);
-        //int k = this.menu.getFuel();
-        /*int k = 4;
-        int l = Mth.clamp((18 * k + 20 - 1) / 20, 0, 18);
-        if (l > 0) {
-            this.blit(p_98336_, i + 60, j + 44, 176, 29, l, 4);
-        }*/
 
         int i1 = this.menu.getBrewingTicks();
         if (i1 > 0) {

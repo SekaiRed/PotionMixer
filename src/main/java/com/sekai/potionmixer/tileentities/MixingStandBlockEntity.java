@@ -109,14 +109,6 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
     }
 
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, MixingStandBlockEntity blockEntity) {
-        /*ItemStack itemstack = blockEntity.items.get(4);
-        if (blockEntity.fuel <= 0 && itemstack.is(Items.BLAZE_POWDER)) {
-            blockEntity.fuel = 20;
-            itemstack.shrink(1);
-            setChanged(level, blockPos, blockState);
-        }*/
-
-        //blockEntity.brewTime--;
         if(isMixable(blockEntity.items)) {
             blockEntity.brewTime -= 2;
             if(blockEntity.brewTime <= 0) {
@@ -160,7 +152,6 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
     private static boolean isMixable(NonNullList<ItemStack> items) {
         int potionCount = 0;
 
-        //itemStack.is(Items.GLASS_BOTTLE) || PotionUtils.getPotion(itemStack).equals(Potions.WATER)
         if(!items.get(3).is(Items.GLASS_BOTTLE) && !PotionUtils.getPotion(items.get(3)).equals(Potions.WATER))
             return false;
 
@@ -208,22 +199,11 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
             }
 
             finalEffects.add(new MobEffectInstance(effect.effect, duration, amplifier));
-            /*if(effect.count == 2)
-                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration/4, effect.lowest_level+1));
-            else if(effect.count == 3)
-                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration/3, effect.lowest_level+1));
-            else
-                finalEffects.add(new MobEffectInstance(effect.effect, effect.duration, effect.lowest_level));*/
         }
-
-        //itemstack.shrink(1);
 
         ItemStack result = new ItemStack(Items.POTION);
         PotionUtils.setPotion(result, RegistryHandler.MIXED_POTION.get());
         PotionUtils.setCustomEffects(result, finalEffects);
-        //CompoundTag nameNBT = new CompoundTag();
-        //nameNBT.putString("Name", MixingUtil.MIXED_POTION);//"{\"text\":\"Mixed Potion\",\"italic\":\"false\"}"
-        //result.addTagElement("display", nameNBT);
         result.getOrCreateTag().putInt("CustomPotionColor", PotionUtils.getColor(finalEffects));
         items.set(3, result);
         for(int i = 0; i < 3; i++) {
@@ -235,16 +215,6 @@ public class MixingStandBlockEntity extends BaseContainerBlockEntity {
 
         level.playSound(null, pos, RegistryHandler.MIXING_SOUND.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
     }
-
-    /*private static int getPotionColor(NonNullList<ItemStack> items) {
-        byte red;
-        byte green;
-        byte blue;
-        for(int i = 0; i<3; i++) {
-            PotionUtils.getColor()
-        }
-        return 0;
-    }*/
 
     @Override
     public int getContainerSize() {

@@ -80,35 +80,6 @@ public class MixingStandBlock extends BaseEntityBlock {
         }
     }
 
-    /*public void setPlacedBy(Level p_50913_, BlockPos p_50914_, BlockState p_50915_, LivingEntity p_50916_, ItemStack p_50917_) {
-        if (p_50917_.hasCustomHoverName()) {
-            BlockEntity blockentity = p_50913_.getBlockEntity(p_50914_);
-            if (blockentity instanceof BrewingStandBlockEntity) {
-                ((BrewingStandBlockEntity)blockentity).setCustomName(p_50917_.getHoverName());
-            }
-        }
-
-    }
-
-    public void onRemove(BlockState p_50937_, Level p_50938_, BlockPos p_50939_, BlockState p_50940_, boolean p_50941_) {
-        if (!p_50937_.is(p_50940_.getBlock())) {
-            BlockEntity blockentity = p_50938_.getBlockEntity(p_50939_);
-            if (blockentity instanceof BrewingStandBlockEntity) {
-                Containers.dropContents(p_50938_, p_50939_, (BrewingStandBlockEntity)blockentity);
-            }
-
-            super.onRemove(p_50937_, p_50938_, p_50939_, p_50940_, p_50941_);
-        }
-    }
-
-    public boolean hasAnalogOutputSignal(BlockState p_50919_) {
-        return true;
-    }
-
-    public int getAnalogOutputSignal(BlockState p_50926_, Level p_50927_, BlockPos p_50928_) {
-        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(p_50927_.getBlockEntity(p_50928_));
-    }*/
-
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_50948_) {
         p_50948_.add(HAS_BOTTLE[0], HAS_BOTTLE[1], HAS_BOTTLE[2]);
     }

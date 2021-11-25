@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 @Mod(Main.MODID)
 public class Main
 {
-    private static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "potionmixer";
 
     public Main() {

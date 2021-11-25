@@ -19,12 +19,7 @@ public class EventHandler {
                 ItemStack item = e.getItem(i);
                 CompoundTag originalTag = item.getOrCreateTag();
                 if (originalTag.get("CustomPotionEffects") != null) {
-                    //ListTag listtag = originalTag.getList("CustomPotionEffects", 9).copy();
-                    /*for(int j = 0; j<listtag.size(); j++)
-                        listtag.getCompound(j).getInt("Duration")*/
-                    //correctPotionDurations(listtag, 1/2D);
                     resultOverride[i] = originalTag.get("CustomPotionEffects").copy();
-                    //resultOverride[i].getCompound("display").putString("Name", MixingUtil.SPLASH_MIXED_POTION);
                 }
             }
         }
@@ -50,7 +45,6 @@ public class EventHandler {
             }
         }
     }
-    //PotionUtils.getPotion(item).equals(RegistryHandler.MIXED_POTION.get())
 
     @SubscribeEvent
     public void itemCraftedEvent(PlayerEvent.ItemCraftedEvent e) {

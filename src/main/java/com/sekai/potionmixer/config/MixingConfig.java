@@ -37,9 +37,6 @@ public class MixingConfig {
                     .translation(Main.MODID + ".config." + "maxAmplifier")
                     .defineInRange("maxAmplifier", 10, 0, Integer.MAX_VALUE);
             builder.pop();
-
-            builder.push("Data Sync");
-            builder.pop();
         }
     }
 

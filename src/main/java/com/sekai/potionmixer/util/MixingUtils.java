@@ -17,15 +17,6 @@ public class MixingUtils {
     }
 
     public static void correctPotionDurations(ItemStack itemStack, double factor) {
-        //correctPotionDurations(itemStack, itemStack, factor);
-        /*List<MobEffectInstance> customEffects = PotionUtils.getCustomEffects(itemStack);
-        MobEffectInstance index;
-        for(int i = 0; i < customEffects.size(); i++) {
-            index = customEffects.get(i);
-            customEffects.set(i, new MobEffectInstance(index.getEffect(), (int) (index.getDuration() * factor), index.getAmplifier()));
-        }
-        PotionUtils.setCustomEffects(itemStack, customEffects);
-        return itemStack;*/
         List<MobEffectInstance> customEffects = PotionUtils.getCustomEffects(itemStack);
         MobEffectInstance index;
         for(int i = 0; i < customEffects.size(); i++) {
@@ -34,14 +25,4 @@ public class MixingUtils {
         }
         PotionUtils.setCustomEffects(itemStack, customEffects);
     }
-
-    /*public static void correctPotionDurations(ItemStack itemFrom, ItemStack itemTo, double factor) {
-        List<MobEffectInstance> customEffects = PotionUtils.getCustomEffects(itemFrom);
-        MobEffectInstance index;
-        for(int i = 0; i < customEffects.size(); i++) {
-            index = customEffects.get(i);
-            customEffects.set(i, new MobEffectInstance(index.getEffect(), (int) (index.getDuration() * factor), index.getAmplifier()));
-        }
-        PotionUtils.setCustomEffects(itemTo, customEffects);
-    }*/
 }
